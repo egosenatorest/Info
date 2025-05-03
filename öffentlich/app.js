@@ -28,8 +28,9 @@ const firebaseConfig = {
     const name = document.getElementById("register-name").value;
     const password = document.getElementById("register-password").value;
     auth.createUserWithEmailAndPassword(name + "@habibo.vote", password)
-      .then(() => login())  
-      .catch(error => alert(error.message));
+      .then(alert("registriewrt ghe zurüch nach login"))  //fix javscript nummer 10 idk why gnau fehler habe infach en fehlercode entfernt
+ 
+
   }
   
   function login() {
