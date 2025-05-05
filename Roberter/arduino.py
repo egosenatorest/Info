@@ -2,9 +2,9 @@ import serial
 import time
 from checken import ermittle_gewinner
 
-arduino = serial.Serial('COM6', 9600)  # COM-Port anpassen!
+arduino = serial.Serial('COM6', 9600)  
 
-time.sleep(2)  # Kurz warten bis Verbindung steht
+time.sleep(2) 
 
 richtung = ermittle_gewinner()
 arduino.write(richtung.encode())  # z.B. "links"
