@@ -11,7 +11,6 @@ void setup() {
   Serial.begin(115200);
   while(!Serial); 
   
-  // Motortreiber-Pins initialisieren
   pinMode(ENA, OUTPUT);
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
