@@ -9,7 +9,7 @@ String command = "";
 
 void setup() {
   Serial.begin(115200);
-  while(!Serial); // Nur für Boards mit native USB nötig
+  while(!Serial); 
   
   // Motortreiber-Pins initialisieren
   pinMode(ENA, OUTPUT);
@@ -19,8 +19,8 @@ void setup() {
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
   
-  Serial.println("Roboter-Motortest gestartet");
-  Serial.println("Verfügbare Befehle: 1-8 (Pins), L (Links), R (Rechts), F (Vorwärts), S (Stop)");
+  Serial.println("test gestartet");
+  Serial.println(" Befehle: 1-8 (Pins), L (Links), R (Rechts), F (Vorwärts), S (Stop)");
 }
 
 void loop() {
@@ -47,7 +47,6 @@ turnLeft();
       return;
     }
     
-    // Motorfunktionen testen
     switch(cmd) {
       case 'L': 
         turnLeft();
