@@ -24,50 +24,9 @@ void setup() {
 }
 
 void loop() {
-  if(Serial.available()){
 
-command = Serial.readString();
-
-  }
-  if (command== "links") {
-turnLeft();
-  }
-  if (Serial.available()) {
-    char cmd = Serial.read();
-    
-    // Einzelne Pins testen
-    if(cmd >= '1' && cmd <= '8') {
-      int pin = cmd - '0';
-      Serial.print("Teste Pin ");
-      Serial.println(pin);
-      pinMode(pin, OUTPUT);
-      digitalWrite(pin, HIGH);
-      delay(500);
-      digitalWrite(pin, LOW);
-      return;
-    }
-    
-    switch(cmd) {
-      case 'L': 
-        turnLeft();
-        Serial.println("Linksdrehung aktiviert");
-        break;
-      case 'R':
-        turnRight();
-        Serial.println("Rechtsdrehung aktiviert");
-        break;
-      case 'F':
-        moveForward();
-        Serial.println("Vorwärtsfahrt aktiviert");
-        break;
-      case 'S':
-        stopMotors();
-        Serial.println("Motoren gestoppt");
-        break;
-    }
-  }
 }
-void moveForward() {
+void vorne() {
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH);
@@ -76,7 +35,7 @@ void moveForward() {
   analogWrite(ENB, 200);
 }
 
-void turnLeft() {
+void links() {
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, LOW);
@@ -85,7 +44,7 @@ void turnLeft() {
   analogWrite(ENB, 200);
 }
 
-void turnRight() {
+void rechts() {
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
@@ -94,7 +53,7 @@ void turnRight() {
   analogWrite(ENB, 200);
 }
 
-void stopMotors() {
+void stop() {
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
