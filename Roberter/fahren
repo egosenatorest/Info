@@ -1,0 +1,43 @@
+from gpiozero import Motor
+from time import sleep
+from checken import ermittle_gewinner  # Funktion aus checken.py importieren
+
+# Motoren initialisieren (GPIO-Pins anpassen!)
+motor_links = Motor(forward=17, backward=18)
+motor_rechts = Motor(forward=22, backward=23)
+
+def fahre_links():
+    print("↪ Fahre LINKS")
+    motor_links.backward()
+    motor_rechts.forward()
+    sleep(1)
+    motor_links.stop()
+    motor_rechts.stop()
+
+def fahre_rechts():
+    print("↩ Fahre RECHTS")
+    motor_links.forward()
+    motor_rechts.backward()
+    sleep(1)
+    motor_links.stop()
+    motor_rechts.stop()
+
+def fahre_geradeaus():
+    print("⬆ Fahre GERADEAUS")
+    motor_links.forward()
+    motor_rechts.forward()
+    sleep(1)
+    motor_links.stop()
+    motor_rechts.stop()
+
+# Hauptlogik
+gewinner = ermittle_gewinner()
+
+if gewinner == "links":
+    fahre_links()
+elif gewinner == "rechts":
+    fahre_rechts()
+elif gewinner == "geradeaus":
+    fahre_geradeaus()
+else:
+    print("❗ Keine gültige Richtung gefunden.")
