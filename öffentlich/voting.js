@@ -94,7 +94,16 @@ function sendErgEtReset() {
       const counts = { links: 0, mitte: 0, rechts: 0 };
       snapshot.forEach(doc => counts[doc.data().r]++);
       snapshot.forEach(doc => doc.ref.delete());
-      alert(`Ergebnis gesendet!\nLinks: ${counts.links}\nMitte: ${counts.mitte}\nRechts: ${counts.rechts}`);
+      // Ergebnisse im UI anzeigen, kein alert mehr!
+      const ergebnisDiv = document.getElementById('erg');
+      if (ergebnisDiv) {
+        ergebnisDiv.innerHTML = `
+          <b>Ergebnis:</b><br>
+          Links: ${counts.links}<br>
+          Mitte: ${counts.mitte}<br>
+          Rechts: ${counts.rechts}
+        `;
+      }
       tempVotes = {}; // RAM Votes zurücksetzen
     });
   });
