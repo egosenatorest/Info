@@ -61,19 +61,6 @@ function startLocalCountdown() {
   }, 1000);
 }
 
-function starteVote() {
-  if (aktivVote) return;
-  aktivVote = true;
-  countdown = 10;
-  tempVotes = {}; // Neue Runde
-  setVotingStatusFirestore(true, countdown);
-  // Der Listener übernimmt den Rest (Countdown etc.)
-  // Leere livevotes für neue Runde
-  db.collection('livevotes').get().then(snapshot => {
-    snapshot.forEach(doc => doc.ref.delete());
-  });
-}
-
 function vote(richtung) {
   const user = auth.currentUser;
   if (!user) return;
@@ -81,18 +68,17 @@ function vote(richtung) {
     alert('Warten auf nächste Voting-Phase!');
     return;
   }
-  const uid = user.uid;
-  if (tempVotes[uid]) {
-    alert('Du hast schon abgestimmt!');
-    return;
+  // Jede Stimme als neues Dokument speichern (Gesamtanzahl aller Votes)
+  const voteId = `${user.uid}_${Date.now()}`;
+  db.collection('livevotes').doc(voteId).set({ r: richtung });
+  // Nur die erste Stimme pro User für das finale Ergebnis merken
+  if (!tempVotes[user.uid]) {
+    tempVotes[user.uid] = richtung;
   }
-  tempVotes[uid] = richtung;
-  // Schreibe sofort in livevotes für Statistik
-  db.collection('livevotes').doc(uid).set({ r: richtung });
 }
 
 function sendErgEtReset() {
-  // Votes in Datenbank schreiben (nur am Ende)
+  // Votes in Datenbank schreiben (nur am Ende, nur die erste Stimme pro User)
   const batch = db.batch();
   Object.entries(tempVotes).forEach(([uid, richtung]) => {
     const voteRef = db.collection('stimm').doc(uid);
@@ -115,19 +101,18 @@ function sendErgEtReset() {
       tempVotes = {}; // RAM Votes zurücksetzen
       setTimeout(() => {
         snapshot.forEach(doc => doc.ref.delete());
-        // Leere auch livevotes nach 2 Sekunden
-        db.collection('livevotes').get().then(livesnap => {
-          livesnap.forEach(doc => doc.ref.delete());
-        });
-      }, 2000); // 2 Sekunden warten, dann zurücksetzen
+      }, 4000); // 4 Sekunden warten, dann stimm zurücksetzen
     });
   });
 }
 
-function resetVotes() {
-  db.collection('stimm').get().then(snapshot => {
-    snapshot.forEach(doc => doc.ref.delete());
-  });
+function starteVote() {
+  if (aktivVote) return;
+  aktivVote = true;
+  countdown = 10;
+  tempVotes = {}; // Neue Runde
+  setVotingStatusFirestore(true, countdown);
+  // Leere livevotes für neue Runde
   db.collection('livevotes').get().then(snapshot => {
     snapshot.forEach(doc => doc.ref.delete());
   });
