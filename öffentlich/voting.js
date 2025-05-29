@@ -8,6 +8,22 @@ function zeigCount(sec) {
   if (el) el.textContent = sec > 0 ? `Countdown: ${sec}s` : '';
 }
 
+function updateFrontendStats() {
+  const counts = { links: 0, mitte: 0, rechts: 0 };
+  Object.values(tempVotes).forEach(r => {
+    if (r && counts.hasOwnProperty(r)) counts[r]++;
+  });
+  const ergebnisDiv = document.getElementById('erg');
+  if (ergebnisDiv) {
+    ergebnisDiv.innerHTML = `
+      <b>Live-Statistik:</b><br>
+      Links: ${counts.links}<br>
+      Mitte: ${counts.mitte}<br>
+      Rechts: ${counts.rechts}
+    `;
+  }
+}
+
 // Voting-Status für alle synchronisieren
 function setVotingStatusFirestore(active, seconds) {
   db.collection('status').doc('voting').set({ aktivVote: active, countdown: seconds, started: Date.now() });
@@ -41,6 +57,7 @@ function startLocalCountdown() {
   countdownInterval = setInterval(() => {
     countdown--;
     zeigCount(countdown);
+    if (aktivVote) updateFrontendStats();
     if (countdown <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
@@ -63,6 +80,7 @@ function starteVote() {
   countdown = 10;
   tempVotes = {}; // Neue Runde
   setVotingStatusFirestore(true, countdown);
+  updateFrontendStats();
   // Der Listener übernimmt den Rest (Countdown etc.)
 }
 
@@ -79,6 +97,7 @@ function vote(richtung) {
     return;
   }
   tempVotes[uid] = richtung;
+  updateFrontendStats();
   // Noch kein Firestore-Zugriff hier!
 }
 
@@ -93,8 +112,7 @@ function sendErgEtReset() {
     db.collection('stimm').get().then(snapshot => {
       const counts = { links: 0, mitte: 0, rechts: 0 };
       snapshot.forEach(doc => counts[doc.data().r]++);
-      snapshot.forEach(doc => doc.ref.delete());
-      // Ergebnisse im UI anzeigen, kein alert mehr!
+      // Ergebnisse im UI anzeigen
       const ergebnisDiv = document.getElementById('erg');
       if (ergebnisDiv) {
         ergebnisDiv.innerHTML = `
@@ -105,6 +123,9 @@ function sendErgEtReset() {
         `;
       }
       tempVotes = {}; // RAM Votes zurücksetzen
+      setTimeout(() => {
+        snapshot.forEach(doc => doc.ref.delete());
+      }, 2000); // 2 Sekunden warten, dann zurücksetzen
     });
   });
 }
@@ -125,18 +146,9 @@ window.hideAdminPanel = function() {
   if (adminDiv) adminDiv.style.display = 'none';
 };
 
-// Firestore Realtime Listener für Votes
+// Firestore Realtime Listener für Votes (nur für Backend-Statistik, nicht für Live-Statistik)
 function updateErgebnisse(snapshot) {
-  const counts = { links: 0, mitte: 0, rechts: 0 };
-  snapshot.forEach(doc => {
-    const r = doc.data().r;
-    if (r && counts.hasOwnProperty(r)) counts[r]++;
-  });
-  document.getElementById("erg").innerHTML = `
-    Links: ${counts.links}<br>
-    Mitte: ${counts.mitte}<br>
-    Rechts: ${counts.rechts}
-  `;
+  // Diese Funktion bleibt für Kompatibilität, aber Live-Statistik kommt aus tempVotes
 }
 
 db.collection("stimm").onSnapshot(updateErgebnisse);
