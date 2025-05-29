@@ -68,13 +68,20 @@ function vote(richtung) {
     alert('Warten auf nächste Voting-Phase!');
     return;
   }
-  // Jede Stimme als neues Dokument speichern (Gesamtanzahl aller Votes)
-  const voteId = `${user.uid}_${Date.now()}`;
-  db.collection('livevotes').doc(voteId).set({ r: richtung });
-  // Nur die erste Stimme pro User für das finale Ergebnis merken
-  if (!tempVotes[user.uid]) {
-    tempVotes[user.uid] = richtung;
-  }
+  // Prüfe, ob der User in dieser Runde schon in livevotes gevotet hat
+  db.collection('livevotes').where(firebase.firestore.FieldPath.documentId(), '>=', user.uid + '_').where(firebase.firestore.FieldPath.documentId(), '<', user.uid + '_\uf8ff').get().then(snapshot => {
+    if (!snapshot.empty) {
+      alert('Du hast schon abgestimmt!');
+      return;
+    }
+    // Jede Stimme als neues Dokument speichern (Gesamtanzahl aller Votes)
+    const voteId = `${user.uid}_${Date.now()}`;
+    db.collection('livevotes').doc(voteId).set({ r: richtung });
+    // Nur die erste Stimme pro User für das finale Ergebnis merken
+    if (!tempVotes[user.uid]) {
+      tempVotes[user.uid] = richtung;
+    }
+  });
 }
 
 function sendErgEtReset() {
