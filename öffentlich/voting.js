@@ -9,12 +9,11 @@ function zeigCount(sec) {
 function sendErgEtReset() {
   db.collection('votes').get().then(snapshot => {
     const counts = { links: 0, mitte: 0, rechts: 0 };
-    snapshot.forEach(doc => counts[doc.data().richtung]++);
+    snapshot.forEach(doc => counts[doc.data().r]++);
     // Hier ggf. an Backend/Robot senden (z.B. via Cloud Function, Python, etc.)
     // ...
     // Danach Votes zurücksetzen:
     snapshot.forEach(doc => doc.ref.delete());
-    ladStimm();
     alert(`Ergebnis gesendet!\nLinks: ${counts.links}\nMitte: ${counts.mitte}\nRechts: ${counts.rechts}`);
   });
 }
@@ -52,33 +51,30 @@ function vote(richtung) {
     if (doc.exists) {
       alert('Du hast schon abgestimmt!');
     } else {
-      voteRef.set({ richtung }).then(() => {
-        ladStimm();
+      voteRef.set({ r: richtung }).then(() => {
+        // Abstimmung erfolgreich
       });
     }
   });
 }
 
-function ladStimm() {
-  db.collection("votes").get().then(snapshot => {
-    const counts = { links: 0, mitte: 0, rechts: 0 };
-    snapshot.forEach(doc => counts[doc.data().richtung]++);
-    document.getElementById("erg").innerHTML = `
-      Links: ${counts.links}<br>
-      Mitte: ${counts.mitte}<br>
-      Rechts: ${counts.rechts}
-    `;
-  });
+// Firestore Realtime Listener für Votes
+function updateErgebnisse(snapshot) {
+  const counts = { links: 0, mitte: 0, rechts: 0 };
+  snapshot.forEach(doc => counts[doc.data().r]++);
+  document.getElementById("erg").innerHTML = `
+    Links: ${counts.links}<br>
+    Mitte: ${counts.mitte}<br>
+    Rechts: ${counts.rechts}
+  `;
 }
 
-function resetVotes() {
-  db.collection('votes').get().then(snapshot => {
-    snapshot.forEach(doc => doc.ref.delete());
-    ladStimm();
-  });
-}
+db.collection("votes").onSnapshot(updateErgebnisse);
+
+// In sendErgEtReset() und resetVotes() KEIN ladStimm() mehr aufrufen!
+
+// Entferne setVoteButtonsEnabled und onAuthStateChanged, damit alle voten können
 
 window.starteVote = starteVote;
 window.vote = vote;
 window.resetVotes = resetVotes;
-window.ladStimm = ladStimm;
