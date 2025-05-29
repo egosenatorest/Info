@@ -8,22 +8,6 @@ function zeigCount(sec) {
   if (el) el.textContent = sec > 0 ? `Countdown: ${sec}s` : '';
 }
 
-function updateFrontendStats() {
-  const counts = { links: 0, mitte: 0, rechts: 0 };
-  Object.values(tempVotes).forEach(r => {
-    if (r && counts.hasOwnProperty(r)) counts[r]++;
-  });
-  const ergebnisDiv = document.getElementById('erg');
-  if (ergebnisDiv) {
-    ergebnisDiv.innerHTML = `
-      <b>Live-Statistik:</b><br>
-      Links: ${counts.links}<br>
-      Mitte: ${counts.mitte}<br>
-      Rechts: ${counts.rechts}
-    `;
-  }
-}
-
 // Voting-Status für alle synchronisieren
 function setVotingStatusFirestore(active, seconds) {
   db.collection('status').doc('voting').set({ aktivVote: active, countdown: seconds, started: Date.now() });
@@ -61,7 +45,6 @@ function startLocalCountdown() {
   countdownInterval = setInterval(() => {
     countdown--;
     zeigCount(countdown);
-    if (aktivVote) updateFrontendStats();
     if (countdown <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
@@ -84,7 +67,6 @@ function starteVote() {
   countdown = 10;
   tempVotes = {}; // Neue Runde
   setVotingStatusFirestore(true, countdown);
-  updateFrontendStats();
   // Der Listener übernimmt den Rest (Countdown etc.)
 }
 
@@ -101,7 +83,6 @@ function vote(richtung) {
     return;
   }
   tempVotes[uid] = richtung;
-  updateFrontendStats();
   // Noch kein Firestore-Zugriff hier!
 }
 
@@ -150,9 +131,22 @@ window.hideAdminPanel = function() {
   if (adminDiv) adminDiv.style.display = 'none';
 };
 
-// Firestore Realtime Listener für Votes (nur für Backend-Statistik, nicht für Live-Statistik)
+// Firestore Realtime Listener für Votes (Live-Statistik für alle)
 function updateErgebnisse(snapshot) {
-  // Diese Funktion bleibt für Kompatibilität, aber Live-Statistik kommt aus tempVotes
+  const counts = { links: 0, mitte: 0, rechts: 0 };
+  snapshot.forEach(doc => {
+    const r = doc.data().r;
+    if (r && counts.hasOwnProperty(r)) counts[r]++;
+  });
+  const ergebnisDiv = document.getElementById('erg');
+  if (ergebnisDiv) {
+    ergebnisDiv.innerHTML = `
+      <b>Live-Statistik:</b><br>
+      Links: ${counts.links}<br>
+      Mitte: ${counts.mitte}<br>
+      Rechts: ${counts.rechts}
+    `;
+  }
 }
 
 db.collection("stimm").onSnapshot(updateErgebnisse);
