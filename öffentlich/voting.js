@@ -8,23 +8,53 @@ function zeigCount(sec) {
   if (el) el.textContent = sec > 0 ? `Countdown: ${sec}s` : '';
 }
 
-function sendErgEtReset() {
-  // Votes in Datenbank schreiben
-  const batch = db.batch();
-  Object.entries(tempVotes).forEach(([uid, richtung]) => {
-    const voteRef = db.collection('stimm').doc(uid);
-    batch.set(voteRef, { r: richtung });
+// Voting-Status für alle synchronisieren
+function setVotingStatusFirestore(active, seconds) {
+  db.collection('status').doc('voting').set({ aktivVote: active, countdown: seconds, started: Date.now() });
+}
+
+// Listener für Voting-Status (Countdown) für alle Nutzer
+let votingStatusUnsub = null;
+function listenVotingStatus() {
+  if (votingStatusUnsub) votingStatusUnsub();
+  votingStatusUnsub = db.collection('status').doc('voting').onSnapshot(doc => {
+    const data = doc.data();
+    if (!data) return;
+    aktivVote = data.aktivVote;
+    countdown = data.countdown;
+    zeigCount(countdown);
+    if (aktivVote && countdown > 0 && !countdownInterval) {
+      document.getElementById('umf').style.pointerEvents = '';
+      startLocalCountdown();
+    }
+    if (!aktivVote || countdown <= 0) {
+      document.getElementById('umf').style.pointerEvents = 'none';
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      zeigCount(0);
+    }
   });
-  batch.commit().then(() => {
-    // Ergebnisse zählen
-    db.collection('stimm').get().then(snapshot => {
-      const counts = { links: 0, mitte: 0, rechts: 0 };
-      snapshot.forEach(doc => counts[doc.data().r]++);
-      snapshot.forEach(doc => doc.ref.delete());
-      alert(`Ergebnis gesendet!\nLinks: ${counts.links}\nMitte: ${counts.mitte}\nRechts: ${counts.rechts}`);
-      tempVotes = {}; // RAM Votes zurücksetzen
-    });
-  });
+}
+
+function startLocalCountdown() {
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    countdown--;
+    zeigCount(countdown);
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      aktivVote = false;
+      zeigCount(0);
+      document.getElementById('umf').style.pointerEvents = 'none';
+      // Nur Admin triggert das Ergebnis!
+      const user = auth.currentUser;
+      if (user && user.email === 'admin@habibo.vote') {
+        sendErgEtReset();
+        setVotingStatusFirestore(false, 0);
+      }
+    }
+  }, 1000);
 }
 
 function starteVote() {
@@ -32,19 +62,8 @@ function starteVote() {
   aktivVote = true;
   countdown = 10;
   tempVotes = {}; // Neue Runde
-  zeigCount(countdown);
-  document.getElementById('umf').style.pointerEvents = '';
-  countdownInterval = setInterval(() => {
-    countdown--;
-    zeigCount(countdown);
-    if (countdown <= 0) {
-      clearInterval(countdownInterval);
-      aktivVote = false;
-      sendErgEtReset();
-      zeigCount(0);
-      document.getElementById('umf').style.pointerEvents = 'none';
-    }
-  }, 1000);
+  setVotingStatusFirestore(true, countdown);
+  // Der Listener übernimmt den Rest (Countdown etc.)
 }
 
 function vote(richtung) {
@@ -61,6 +80,24 @@ function vote(richtung) {
   }
   tempVotes[uid] = richtung;
   // Noch kein Firestore-Zugriff hier!
+}
+
+function sendErgEtReset() {
+  // Votes in Datenbank schreiben
+  const batch = db.batch();
+  Object.entries(tempVotes).forEach(([uid, richtung]) => {
+    const voteRef = db.collection('stimm').doc(uid);
+    batch.set(voteRef, { r: richtung });
+  });
+  batch.commit().then(() => {
+    db.collection('stimm').get().then(snapshot => {
+      const counts = { links: 0, mitte: 0, rechts: 0 };
+      snapshot.forEach(doc => counts[doc.data().r]++);
+      snapshot.forEach(doc => doc.ref.delete());
+      alert(`Ergebnis gesendet!\nLinks: ${counts.links}\nMitte: ${counts.mitte}\nRechts: ${counts.rechts}`);
+      tempVotes = {}; // RAM Votes zurücksetzen
+    });
+  });
 }
 
 function resetVotes() {
@@ -94,6 +131,9 @@ function updateErgebnisse(snapshot) {
 }
 
 db.collection("stimm").onSnapshot(updateErgebnisse);
+
+// Starte Voting-Status-Listener beim Laden
+listenVotingStatus();
 
 window.starteVote = starteVote;
 window.vote = vote;
