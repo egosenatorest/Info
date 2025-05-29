@@ -1,35 +1,12 @@
-// voting.js
-// Voting-Phase, Countdown, Stimmen, Ergebnisse
-
-let votingActive = false;
+let aktivVote = false;
 let countdown = 0;
 let countdownInterval = null;
 
-function showCountdown(sec) {
+function zeigCount(sec) {
   let el = document.getElementById('countdown');
   if (el) el.textContent = sec > 0 ? `Countdown: ${sec}s` : '';
 }
-
-function startVotingPhase() {
-  if (votingActive) return;
-  votingActive = true;
-  countdown = 10;
-  showCountdown(countdown);
-  document.getElementById('umf').style.pointerEvents = '';
-  countdownInterval = setInterval(() => {
-    countdown--;
-    showCountdown(countdown);
-    if (countdown <= 0) {
-      clearInterval(countdownInterval);
-      votingActive = false;
-      sendResultsAndReset();
-      showCountdown(0);
-      document.getElementById('umf').style.pointerEvents = 'none';
-    }
-  }, 1000);
-}
-
-function sendResultsAndReset() {
+function sendErgEtReset() {
   db.collection('votes').get().then(snapshot => {
     const counts = { links: 0, mitte: 0, rechts: 0 };
     snapshot.forEach(doc => counts[doc.data().richtung]++);
@@ -41,14 +18,34 @@ function sendResultsAndReset() {
     alert(`Ergebnis gesendet!\nLinks: ${counts.links}\nMitte: ${counts.mitte}\nRechts: ${counts.rechts}`);
   });
 }
+function starteVote() {
+  if (aktivVote) return;
+  aktivVote = true;
+  countdown = 10;
+  zeigCount(countdown);
+  document.getElementById('umf').style.pointerEvents = '';
+  countdownInterval = setInterval(() => {
+    countdown--;
+    zeigCount(countdown);
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+      aktivVote = false;
+      sendErgEtReset();
+      zeigCount(0);
+      document.getElementById('umf').style.pointerEvents = 'none';
+    }
+  }, 1000);
+}
+
+
 
 function vote(richtung) {
-  if (!votingActive) {
+  const user = auth.currentUser;
+  if (!user) return;
+  if (!aktivVote) {
     alert('Warten auf nächste Voting-Phase!');
     return;
   }
-  const user = auth.currentUser;
-  if (!user) return;
   const uid = user.uid;
   const voteRef = db.collection('votes').doc(uid);
   voteRef.get().then(doc => {
@@ -81,7 +78,7 @@ function resetVotes() {
   });
 }
 
-window.startVotingPhase = startVotingPhase;
+window.starteVote = starteVote;
 window.vote = vote;
 window.resetVotes = resetVotes;
 window.ladStimm = ladStimm;
