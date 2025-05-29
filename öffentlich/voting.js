@@ -36,6 +36,10 @@ function listenVotingStatus() {
   votingStatusUnsub = db.collection('status').doc('voting').onSnapshot(doc => {
     const data = doc.data();
     if (!data) return;
+    // Wenn Voting-Status auf aktiv gesetzt wird, tempVotes für alle zurücksetzen
+    if (data.aktivVote && countdown === 0) {
+      tempVotes = {}; // Jeder Client setzt sein tempVotes zurück
+    }
     aktivVote = data.aktivVote;
     countdown = data.countdown;
     zeigCount(countdown);
