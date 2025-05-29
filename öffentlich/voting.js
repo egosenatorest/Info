@@ -23,6 +23,11 @@ function listenVotingStatus() {
     // Wenn Voting-Status auf aktiv gesetzt wird, tempVotes für alle zurücksetzen
     if (data.aktivVote && countdown === 0) {
       tempVotes = {}; // Jeder Client setzt sein tempVotes zurück
+      window.currentVotingStarted = data.started || Date.now();
+      // Leere Userstatus für neue Runde
+      db.collection('livevotes_userstatus').get().then(snapshot => {
+        snapshot.forEach(doc => doc.ref.delete());
+      });
     }
     aktivVote = data.aktivVote;
     countdown = data.countdown;
@@ -68,20 +73,29 @@ function vote(richtung) {
     alert('Warten auf nächste Voting-Phase!');
     return;
   }
-  // Prüfe, ob der User in dieser Runde schon in livevotes gevotet hat
-  db.collection('livevotes').where(firebase.firestore.FieldPath.documentId(), '>=', user.uid + '_').where(firebase.firestore.FieldPath.documentId(), '<', user.uid + '_\uf8ff').get().then(snapshot => {
-    if (!snapshot.empty) {
+  // Prüfe, ob der User in dieser Runde schon gevotet hat (global, nicht nur lokal)
+  db.collection('livevotes_userstatus').doc(user.uid).get().then(docSnap => {
+    if (docSnap.exists && docSnap.data().runde === getCurrentVotingRoundId()) {
       alert('Du hast schon abgestimmt!');
       return;
     }
     // Jede Stimme als neues Dokument speichern (Gesamtanzahl aller Votes)
     const voteId = `${user.uid}_${Date.now()}`;
     db.collection('livevotes').doc(voteId).set({ r: richtung });
+    // Markiere, dass dieser User in dieser Runde gevotet hat
+    db.collection('livevotes_userstatus').doc(user.uid).set({ runde: getCurrentVotingRoundId() });
     // Nur die erste Stimme pro User für das finale Ergebnis merken
     if (!tempVotes[user.uid]) {
       tempVotes[user.uid] = richtung;
     }
   });
+}
+
+// Hilfsfunktion: Eindeutige ID für jede Voting-Phase (z.B. Startzeitstempel)
+function getCurrentVotingRoundId() {
+  // Hole Voting-Status-Dokument
+  // (Das Feld 'started' wird beim Start gesetzt)
+  return String(window.currentVotingStarted || 0);
 }
 
 function sendErgEtReset() {
