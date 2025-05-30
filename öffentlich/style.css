@@ -81,7 +81,6 @@ body > *:not(#vanta-bg) {
   margin-top: 80px;
   margin-bottom: 120px; /* Platz für Footer */
   width: 100%;
-  min-height: calc(100vh - 180px);
 }
 
 .box {
