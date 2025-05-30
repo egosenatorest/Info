@@ -1,0 +1,443 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background: #0d1117;
+  color: #c9d1d9;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 60px; /* Platz für Footer */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* VANTA Hintergrund */
+#vanta-bg {
+  position: fixed;
+  z-index: -10;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+/* Alles andere über den Hintergrund */
+body > *:not(#vanta-bg) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #161b22e6;
+  box-shadow: 0 2px 8px #01040980;
+  border-bottom: 1.5px solid #30363d;
+  color: #c9d1d9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  font-size: 18px;
+  z-index: 1000;
+}
+
+.logo {
+  color: #58a6ff;
+  text-shadow: none;
+  font-family: 'Inter', sans-serif;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.lnk a {
+  margin-left: 20px;
+  color: white;
+  text-decoration: none;
+}
+
+.lnk a:hover {
+  color: #0ff;
+}
+
+/* Hauptinhalt */
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 80px;
+  margin-bottom: 120px; /* Platz für Footer */
+  width: 100%;
+  min-height: calc(100vh - 180px);
+}
+
+.box {
+  background: #161b22;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #01040960;
+  border: 1.5px solid #30363d;
+  color: #c9d1d9;
+  margin: 60px auto 30px;
+  padding: 32px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.container {
+  background: #161b22;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #01040960;
+  border: 1.5px solid #30363d;
+  color: #c9d1d9;
+  margin-top: 110px;
+  padding: 38px 28px 32px 28px;
+  width: 92%;
+  max-width: 420px;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  opacity: 0;
+  animation: einfliegen 1.1s cubic-bezier(.23,1.02,.36,1) 0.2s forwards;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes einfliegen {
+  from {
+    opacity: 0;
+    transform: translateY(60px) scale(0.96);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+h1, h2, h3 {
+  font-family: 'Inter', sans-serif;
+  color: #58a6ff;
+  letter-spacing: 1px;
+  text-shadow: none;
+}
+
+h1 {
+  margin-bottom: 18px;
+  font-size: 32px;
+  color: #58a6ff;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 2px;
+  text-shadow: 0 0 16px #58a6ff40, 0 0 2px #fff;
+  animation: einfliegen 1.2s cubic-bezier(.23,1.02,.36,1) 0.3s backwards;
+}
+
+input, textarea {
+  padding: 12px;
+  width: 100%;
+  border: 1.5px solid #30363d;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  background: #0d1117;
+  color: #c9d1d9;
+  box-shadow: 0 0 8px #01040930;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+}
+
+input:focus, textarea:focus {
+  border-color: #58a6ff;
+  box-shadow: 0 0 8px #58a6ff80;
+}
+
+button {
+  padding: 14px;
+  width: 100%;
+  background: linear-gradient(90deg, #238636 0%, #58a6ff 100%);
+  color: #f0f6fc;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 0 12px #01040940;
+  margin: 8px 0;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.3s, transform 0.18s cubic-bezier(.23,1.02,.36,1), box-shadow 0.3s;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #58a6ff 0%, #238636 100%);
+  transform: scale(1.04);
+  box-shadow: 0 0 24px #58a6ff40;
+}
+
+/* Fehlermeldung */
+#fehlermeldung {
+  color: #ff7b72;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Umfrage */
+#umfage {
+  display: none;
+}
+
+/* Admin */
+#adminberich {
+  display: none;
+  margin: 20px auto;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Unterer Bereich */
+.unterer {
+  min-height: 200px;
+  padding: 24px;
+  background: rgba(22, 33, 62, 0.7);
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 900px;
+  color: white;
+}
+
+/* Feedback/Footer */
+#fb {
+  background: rgba(10, 10, 35, 0.95);
+  border-top: 2px solid #00fff7;
+  box-shadow: 0 -2px 24px #00fff7a0;
+  padding: 40px 0 20px 0;
+  margin-top: auto;
+}
+
+.fb-box {
+  max-width: 420px;
+  margin: 0 auto;
+  background: rgba(20, 30, 40, 0.7);
+  border-radius: 14px;
+  box-shadow: 0 0 16px #00fff7a0;
+  padding: 24px 18px;
+}
+
+.fb-ico {
+  font-size: 1.5em;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.ft {
+  margin-top: 18px;
+  color: #00fff7;
+  font-size: 0.95em;
+  opacity: 0.7;
+  letter-spacing: 1px;
+}
+
+/* Footer */
+footer#fuss {
+  width: 100vw;
+  background: #161b22e6;
+  color: #8b949e;
+  text-align: center;
+  padding: 18px 0 10px 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  box-shadow: 0 -2px 12px #01040980;
+}
+
+.fuss-cont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.fuss-cont a {
+  color: #58a6ff;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    margin: 80px auto 20px;
+    padding: 18px;
+  }
+  .feedback-container {
+    padding: 14px 6px;
+  }
+}
+
+/* VANTA Hintergrund spezifisch */
+#vanta-bg {
+  position: fixed;
+  z-index: -10;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+/* VANTA spezifische Einstellungen */
+.vanta {
+  --vanta-color-1: #00fff7; /* Neon-Türkis */
+  --vanta-color-2: #0a0a23; /* Dunkel */
+  --vanta-background-alpha: 1.0;
+}
+
+.background span {
+  display: block;
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.12;
+  background: linear-gradient(135deg, #21262d 0%, #30363d 100%);
+  animation: bgmove 8s infinite alternate cubic-bezier(.23,1.02,.36,1);
+}
+@keyframes bgmove {
+  from { transform: scale(1) translateY(0);}
+  to { transform: scale(1.2) translateY(30px);}
+}
+
+.nav-links a {
+  color: #c9d1d9;
+  font-family: 'Inter', sans-serif;
+  font-size: 1em;
+  position: relative;
+  padding: 4px 0;
+  margin-left: 22px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 0;
+  height: 2px;
+  background: #58a6ff;
+  border-radius: 2px;
+  transition: width 0.25s cubic-bezier(.23,1.02,.36,1);
+}
+
+.nav-links a:hover {
+  color: #58a6ff;
+  background: #21262d;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.orbitron {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: #58a6ff;
+  text-align: center;
+  margin-bottom: 0.2em;
+}
+
+.ubuntu {
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 400;
+  color: #8b949e;
+}
+
+.info-text {
+  font-size: 1.1em;
+  text-align: center;
+  margin-bottom: 1.2em;
+  color: #c9d1d9;
+  opacity: 0.92;
+  transition: opacity 0.7s cubic-bezier(.4,0,.2,1);
+}
+
+.accent {
+  border: none;
+  height: 2px;
+  width: 60px;
+  background: linear-gradient(90deg, #58a6ff 0%, #3fb950 100%);
+  margin: 0 auto 2em auto;
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+/* --- Stand.html spezifisch --- */
+.stand-flex {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 60px;
+}
+.stand-chart-box {
+  background: #161b22;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #01040960;
+  border: 1.5px solid #30363d;
+  padding: 32px 24px;
+  min-width: 340px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stand-iframe-box {
+  background: #161b22;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #01040960;
+  border: 1.5px solid #30363d;
+  padding: 18px 10px;
+  min-width: 340px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stand-iframe-box iframe {
+  width: 320px;
+  height: 240px;
+  border: none;
+  background: #222;
+  border-radius: 8px;
+}
+#stand-live-cam {
+  width: 320px;
+  height: 240px;
+  border: none;
+  background: #222;
+  border-radius: 8px;
+}
+#stand-live-chart {
+  width: 320px;
+  height: 320px;
+  display: block;
+}
+@media (max-width: 900px) {
+  .stand-flex { flex-direction: column; align-items: stretch; }
+  .stand-chart-box, .stand-iframe-box { min-width: unset; width: 100%; }
+}
