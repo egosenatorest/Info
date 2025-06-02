@@ -8,23 +8,19 @@ function zeigCount(sec) {
   if (el) el.textContent = sec > 0 ? `Countdown: ${sec}s` : '';
 }
 
-// Voting-Status für alle synchronisieren
 function setVotingStatusFirestore(active, seconds) {
   db.collection('status').doc('voting').set({ aktivVote: active, countdown: seconds, started: Date.now() });
 }
 
-// Listener für Voting-Status (Countdown) für alle Nutzer
 let votingStatusUnsub = null;
 function listenVotingStatus() {
   if (votingStatusUnsub) votingStatusUnsub();
   votingStatusUnsub = db.collection('status').doc('voting').onSnapshot(doc => {
     const data = doc.data();
     if (!data) return;
-    // Wenn Voting-Status auf aktiv gesetzt wird, tempVotes für alle zurücksetzen
     if (data.aktivVote && countdown === 0) {
-      tempVotes = {}; // Jeder Client setzt sein tempVotes zurück
+      tempVotes = {}; 
       window.currentVotingStarted = data.started || Date.now();
-      // Leere Userstatus für neue Runde
       db.collection('livevotes_userstatus').get().then(snapshot => {
         snapshot.forEach(doc => doc.ref.delete());
       });
