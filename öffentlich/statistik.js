@@ -33,7 +33,7 @@ const myChart = new Chart(ctx, {
 
 // Aktualisiere die Chart.js Statistik
 function updateChartStats() {
-  db.collection('stimm').get().then(snapshot => {
+  db.collection('livevotes').get().then(snapshot => {
     const counts = { links: 0, mitte: 0, rechts: 0 };
     snapshot.forEach(doc => counts[doc.data().r]++);
     myChart.data.datasets[0].data = [counts.links, counts.mitte, counts.rechts];
