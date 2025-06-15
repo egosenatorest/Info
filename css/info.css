@@ -1,0 +1,69 @@
+.seite {
+  background: rgba(20, 24, 40, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  padding: 2.5rem 2rem 2rem 2rem;
+  margin: 3rem auto 2rem auto;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1.5px solid #2e3a5e;
+  height: 950px;
+  padding-top: 20px;
+  margin-top: 70px;
+}
+
+.inhalt {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2.5rem;
+  margin-top: 2rem;
+}
+
+.profilbild {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 24px #58a6ff55, 0 2px 8px #000a;
+  border: 3px solid #58a6ff;
+  background: #181c2f;
+}
+
+.info {
+  max-width: 400px;
+  color: #e6e6fa;
+  font-size: 1.15em;
+  line-height: 1.7;
+}
+
+.info h2 {
+  font-family: 'Orbitron', sans-serif;
+  color: #b3fffd;
+  margin-bottom: 0.5em;
+  font-size: 2em;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 700px) {
+  .inhalt {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .info {
+    max-width: 100%;
+    text-align: center;
+  }
+}
+
+.kopf {
+  font-family: 'Orbitron', sans-serif;
+  color: #58a6ff;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.2em;
+}
