@@ -152,11 +152,11 @@ function starteVote() {
   });
 }
 
-window.showAdminPanel = function() {
+window.adminzei = function() {
   const adminDiv = document.getElementById('adminberich');
   if (adminDiv) adminDiv.style.display = 'block';
 };
-window.hideAdminPanel = function() {
+window.verteckAdmin = function() {
         const adminDiv = document.getElementById('adminberich');
            if (adminDiv) adminDiv.style.display = 'none';
 };

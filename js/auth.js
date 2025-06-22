@@ -12,16 +12,31 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-function regShow() {
-  document.getElementById("log").style.display = "none";
-  document.getElementById("reg").style.display = "block";
-}
 
-function logShow() {
-  document.getElementById("log").style.display = "block";
-  document.getElementById("reg").style.display = "none";
+function log() {
+  const name = document.getElementById("n").value.trim();
+  const passwort = document.getElementById("pw").value;
+  if (!name || !passwort) return;
+  auth.signInWithEmailAndPassword(name + "@habibo.vote", passwort)
+    .then(() => {
+      document.getElementById("log").style.display = "none";
+      document.getElementById("umf").style.display = "block";
+      if (name === "admin" && passwort === "123456") {
+        window.adminzei();
+      } else {
+        window.verteckAdmin();
+      }
+    })
+    .catch(e => {
+      if (e.code === 'auth/user-not-found') {
+        alert('Benutzername nicht gefunden! Pls registrieren.');
+      } else if (e.code === 'auth/wrong-password') {
+        alert('Falsches Passwort!');
+      } else {
+        alert(e.message);
+      }
+    });
 }
-
 function reg() {
   const name = document.getElementById("rn").value.trim();
   const passwort = document.getElementById("rpw").value;
@@ -37,33 +52,28 @@ function reg() {
     });
 }
 
-function log() {
-  const name = document.getElementById("n").value.trim();
-  const passwort = document.getElementById("pw").value;
-  if (!name || !passwort) return;
-  auth.signInWithEmailAndPassword(name + "@habibo.vote", passwort)
-    .then(() => {
-      document.getElementById("log").style.display = "none";
-      document.getElementById("umf").style.display = "block";
-      // Admin-Panel nur für admin anzeigen
-      if (name === "admin" && passwort === "123456") {
-        window.showAdminPanel();
-      } else {
-        window.hideAdminPanel();
-      }
-    })
-    .catch(e => {
-      if (e.code === 'auth/user-not-found') {
-        alert('Benutzername nicht gefunden! Bitte registrieren.');
-      } else if (e.code === 'auth/wrong-password') {
-        alert('Falsches Passwort!');
-      } else {
-        alert(e.message);
-      }
-    });
+
+
+
+
+function regShow() {
+  document.getElementById("log").style.display = "none";
+  document.getElementById("reg").style.display = "block";
 }
+
+function logShow() {
+  document.getElementById("log").style.display = "block";
+  document.getElementById("reg").style.display = "none";
+}
+
 
 window.regShow = regShow;
 window.logShow = logShow;
 window.reg = reg;
 window.log = log;
+
+
+
+
+
+

@@ -4,9 +4,9 @@ function adminzei() {
     document.getElementById('adminberich').style.display = 'block';
 }
 
-function hideAdminPanel() {
+function verteckAdmin() {
     document.getElementById('adminberich').style.display = 'none';
 }
 
 window.adminzei = adminzei;
-window.hideAdminPanel = hideAdminPanel;
+window.verteckAdmin = verteckAdmin;
