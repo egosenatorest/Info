@@ -69,30 +69,27 @@ function startTimer() {
 function vote(richtung) {
   const user = auth.currentUser;
   if (!user) return;
-  console.log('Aktuelle UID:', user.uid, 'Email:', user.email); // Debug-Ausgabe
   if (!voteAktiv) {
     alert('Warte auf nachste Vote-Phase!');
     return;
   }
-  // Immer klein schreiben
-  const richtungClean = (richtung + '').toLowerCase();
-  db.collection('livevotes_userstatus').doc(user.uid).get().then(doc => {
+  const currentRound = getCurrentVotingRoundId();
+  db.collection('livevotes_userstatus').doc(user.uid + '_' + currentRound).get().then(doc => {
     if (doc.exists) {
-      alert('Du hast bereits abgestimmt!');
+      alert('Du hast in dieser Runde bereits abgestimmt!');
       return;
     }
-    
-    tempStimmen[user.uid] = richtungClean;
+    tempStimmen[user.uid] = richtung;
     db.collection('livevotes').add({
       u: user.uid,
-      r: richtungClean,
+      r: richtung,
       t: Date.now(),
-      round: getCurrentVotingRoundId()
+      round: currentRound
     });
-    
-    db.collection('livevotes_userstatus').doc(user.uid).set({
-      r: richtungClean,
-      t: Date.now()
+    db.collection('livevotes_userstatus').doc(user.uid + '_' + currentRound).set({
+      r: richtung,
+      t: Date.now(),
+      round: currentRound
     });
   });
 }
@@ -106,34 +103,32 @@ function sendeUndReset() {
   const batch = db.batch();
   Object.entries(tempStimmen).forEach(([uid, richtung]) => {
     const voteRef = db.collection('stimm').doc(uid);
-    batch.set(voteRef, { r: richtung });
+     batch.set(voteRef, { r: richtung });
   });
   batch.commit().then(() => {
     db.collection('stimm').get().then(snapshot => {
       const counts = { links: 0, mitte: 0, rechts: 0 };
-      snapshot.forEach(doc => {
-        const r = doc.data().r;
-        console.log('Stimme gefunden:', r); // Debug-Ausgabe
-        if (r && counts.hasOwnProperty(r)) counts[r]++;
-      });
+  snapshot.forEach(doc => counts[doc.data().r]++);
       const ergebnisDiv = document.getElementById('erg');
-      if (ergebnisDiv) {
-        ergebnisDiv.innerHTML = `
+    if (ergebnisDiv) {
+          ergebnisDiv.innerHTML = `
    <b>Ergebnis:</b><br>
        Links: ${counts.links}<br>
         Mitte: ${counts.mitte}<br>
       Rechts: ${counts.rechts}
         `;
       }
+     
       db.collection('robotvotes').add({
         links: counts.links,
-        mitte: counts.mitte,
-        rechts: counts.rechts,
-        timestamp: Date.now()
+          mitte: counts.mitte,
+           rechts: counts.rechts,
+         timestamp: Date.now()
       });
-      tempStimmen = {};
+      tempStimmen = {}; 
       setTimeout(() => {
-        snapshot.forEach(doc => doc.ref.delete());
+            snapshot.forEach(doc => doc.ref.delete());
+        
         db.collection('robotvotes').orderBy('timestamp', 'desc').limit(1).get().then(snap => {
           snap.forEach(doc => doc.ref.delete());
         });
